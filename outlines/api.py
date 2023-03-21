@@ -17,7 +17,7 @@ def outlines(request):
 
 
 def add_one_outline(request):
-    outline = request.json['outline']
+    outline = json.loads(request.body)['outline']
     return HttpResponse(json.dumps({
         'outlines': article_management.add_one_outline(outline)
     }, default=lambda x: x.__dict__), content_type='application/json')

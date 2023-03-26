@@ -1,8 +1,11 @@
 import json
 import os
+from io import BytesIO
+
 from django.http import FileResponse
 from django.http import HttpResponse
 from outlines import article_management
+from outlines.word_to_excel_utils import read_doc_to_data_set, get_excel_workbook, get_zip_output
 
 
 def test(request):
@@ -105,3 +108,22 @@ def add_articles(request):
     return HttpResponse(json.dumps({
         'status': 'ok'
     }, default=lambda x: x.__dict__), content_type='application/json')
+
+
+def words_to_excels(request):
+    if 'words' not in request.FILES:
+        return HttpResponse("No file uploaded")
+    file_streams = request.FILES.getlist('words')
+
+    workbook_objs = []
+    for file_stream in file_streams:
+        data_set = read_doc_to_data_set(bytes(file_stream.read()))
+        workbook_obj = get_excel_workbook(data_set, file_stream.name)
+        workbook_objs.append(workbook_obj)
+
+    output = get_zip_output(workbook_objs)
+    output.seek(0)
+    response = HttpResponse(output.read(), content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename="excels.zip"'
+
+    return response

@@ -12,4 +12,5 @@ urlpatterns = [
     path('documents/down', download_document),
     path('documents/down/<str:file_name>', download_document_by_path),
     path('documents', documents),
+    path('words/to/excels', words_to_excels),
 ]

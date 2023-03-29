@@ -35,21 +35,27 @@ class Outline:
         self.id = id
         self.content = content
 
+    def get_simple_content(self):
+        return {
+            'id': self.id,
+            'content:': self.content[:100] + '...'
+        }
+
 
 def add_one_outline(outline_content: str):
     outlines_ready.append(Outline(int(time.time()), outline_content))
     return {
-        'ready': outlines_ready,
-        'progressing': outlines_progressing,
-        'done': outlines_done
+        'ready': [item.get_simple_content() for item in outlines_ready],
+        'progressing': [item.get_simple_content() for item in outlines_progressing],
+        'done': [item.get_simple_content() for item in outlines_done]
     }
 
 
 def get_outlines() -> [Outline]:
     return {
-        'ready': outlines_ready,
-        'progressing': outlines_progressing,
-        'done': outlines_done
+        'ready': [item.get_simple_content() for item in outlines_ready],
+        'progressing': [item.get_simple_content() for item in outlines_progressing],
+        'done': [item.get_simple_content() for item in outlines_done]
     }
 
 
@@ -126,3 +132,33 @@ def delete_documents():
     for file in files:
         # os.remove('output/%s' % file)
         shutil.move('output/%s' % file, 'backup/%s' %file)
+
+
+def revert_outline(document_id):
+    for item in outlines_progressing:
+        if str(item.id) == str(document_id):
+            outlines_progressing.remove(item)
+            outlines_ready.append(item)
+    for item in outlines_done:
+        if str(item.id) == str(document_id):
+            outlines_done.remove(item)
+            outlines_ready.append(item)
+    return {
+        'ready': [item.get_simple_content() for item in outlines_ready],
+        'progressing': [item.get_simple_content() for item in outlines_progressing],
+        'done': [item.get_simple_content() for item in outlines_done]
+    }
+
+
+def delete_outlines():
+    global outlines_ready
+    outlines_ready = []
+    global outlines_progressing
+    outlines_progressing = []
+    global outlines_done
+    outlines_done = []
+    return {
+        'ready': [item.get_simple_content() for item in outlines_ready],
+        'progressing': [item.get_simple_content() for item in outlines_progressing],
+        'done': [item.get_simple_content() for item in outlines_done]
+    }

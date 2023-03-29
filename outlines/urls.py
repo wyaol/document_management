@@ -5,6 +5,7 @@ from .api import *
 urlpatterns = [
     path('test', test),
     path('ready', get_one_ready_outline),
+    path('revert/<int:id>', revert_outline),
     # path('paragraphs', add_one_paragraph),
     path('articles', add_articles),
     # path('paragraphs/finish', finish_paragraph),

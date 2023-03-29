@@ -17,6 +17,9 @@ def outlines(request):
         return add_one_outline(request)
     if request.method == 'GET':
         return get_outlines(request)
+    if request.method == 'DELETE':
+        return delete_outlines(request)
+
 
 
 def add_one_outline(request):
@@ -33,9 +36,22 @@ def get_outlines(request):
     }, default=lambda x: x.__dict__), content_type='application/json')
 
 
+def delete_outlines(request):
+    outlines_ = article_management.delete_outlines()
+    return HttpResponse(json.dumps({
+        'outlines': outlines_
+    }, default=lambda x: x.__dict__), content_type='application/json')
+
+
 def get_one_ready_outline(request):
     return HttpResponse(json.dumps({
         'outline': article_management.pop_one_outline()
+    }, default=lambda x: x.__dict__), content_type='application/json')
+
+
+def revert_outline(request, id):
+    return HttpResponse(json.dumps({
+        'outlines': article_management.revert_outline(id)
     }, default=lambda x: x.__dict__), content_type='application/json')
 
 

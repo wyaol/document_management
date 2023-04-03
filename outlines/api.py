@@ -21,8 +21,19 @@ def outlines(request):
         return delete_outlines(request)
 
 
-
 def add_one_outline(request):
+    if 'outlines' not in request.FILES:
+        return HttpResponse("No file uploaded")
+    file_streams = request.FILES.getlist('outlines')
+    for file_stream in file_streams:
+        data_set = read_doc_to_data_set(bytes(file_stream.read()))
+        article_management.add_one_outline('\n'.join(data_set))
+    return HttpResponse(json.dumps({
+        'outlines': article_management.get_outlines()
+    }, default=lambda x: x.__dict__), content_type='application/json')
+
+
+def add_one_outline2(request):
     outline = json.loads(request.body)['outline']
     return HttpResponse(json.dumps({
         'outlines': article_management.add_one_outline(outline)

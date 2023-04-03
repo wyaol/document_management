@@ -1,4 +1,5 @@
 import docx
+from docx.oxml import OxmlElement
 
 
 def creat_docx(title, paragraphs: [str]):
@@ -6,7 +7,10 @@ def creat_docx(title, paragraphs: [str]):
     doc = docx.Document()
     # 向文档中添加段落
     for paragraph in paragraphs:
-        doc.add_paragraph(paragraph)
+        # 将换行符替换为段落分隔符
+        paragraph_items = paragraph.split('\n')
+        for paragraph_item in paragraph_items:
+            doc.add_paragraph(paragraph_item)
 
     # 保存文档
     doc.save('output/%s.docx' % title)

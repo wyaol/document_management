@@ -1,3 +1,4 @@
+import random
 import shutil
 import time
 import re
@@ -10,6 +11,9 @@ outlines_progressing = []
 outlines_done = []
 connectors = []
 count = 0
+
+with open('input/thank.txt', 'r') as fp:
+    thanks = fp.read().split("\n\n")
 
 
 class OutlineStatus(Enum):
@@ -88,11 +92,20 @@ def finish_one_connector(conversation_id):
         creat_docx(connector.title, connector.paragraphs)
 
 
+def get_thank():
+    global thanks
+    return random.choice(thanks)
+
+
 def add_articles(paragraphs):
+    # 判断回答里是否包含章节，包含则删除重复的章节
+    paragraphs = [re.sub(r'\d\.\d.*?\n\n', '', item) for item in paragraphs]
+    paragraphs = [re.sub(r'第.章\n\n', '', item) for item in paragraphs]
+
     title = None
     for i in range(len(paragraphs)):
         if i % 2 == 0:  # ji shu
-            paragraphs[i+1] = paragraphs[i+1].replace('\n\n', '\n')
+            paragraphs[i + 1] = paragraphs[i + 1].replace('\n\n', '\n')
             match_obj = re.match(r'.*?我的第一个请求是(.*?)-(.*?)-(.*?)-(.*?)-?，.*?', paragraphs[i], re.S)
             if not match_obj:
                 match_obj = re.match(r'.*?我的第一个请求是(.*?)-(.*?)-(.*?)，.*?', paragraphs[i], re.S)
@@ -123,7 +136,16 @@ def add_articles(paragraphs):
     count += 1
     title = title if title is not None else str(count)
     paragraphs = [paragraphs[i] for i in range(len(paragraphs)) if i % 2 != 0]
-    print(title)
+
+    # 调正章节顺序
+    if '摘要' in paragraphs[-1] and '本文框架' in paragraphs[-2] and '研究方法' in paragraphs[-3] and '国内外研究现状' in paragraphs[
+        -4] and '研究意义' in paragraphs[-5]:
+        abstract = paragraphs[-1].replace('（包含关键词）', '')
+        paragraphs = [abstract] + paragraphs[-5: -1] + paragraphs[:-5]
+
+    # 增加致谢
+    paragraphs.append('\n\n' + get_thank())
+
     creat_docx(title, paragraphs)
 
 
@@ -131,7 +153,7 @@ def delete_documents():
     files = os.listdir('output')
     for file in files:
         # os.remove('output/%s' % file)
-        shutil.move('output/%s' % file, 'backup/%s' %file)
+        shutil.move('output/%s' % file, 'backup/%s' % file)
 
 
 def revert_outline(document_id):

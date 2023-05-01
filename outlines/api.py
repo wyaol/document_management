@@ -1,3 +1,4 @@
+import datetime
 import json
 import os
 from io import BytesIO
@@ -125,7 +126,11 @@ def delete_documents(request):
 
 def get_documents(request):
     return HttpResponse(json.dumps({
-        'files': ['https://123.207.27.133:5001/outlines/documents/down/' + item for item in os.listdir('output')]
+        'files': sorted([{
+            'download_url': 'https://123.207.27.133:5001/outlines/documents/down/' + item,
+            'create_time': datetime.datetime.fromtimestamp(os.path.getctime('output/%s' % item)).strftime(
+                '%Y-%m-%d %H:%M:%S')
+        } for item in os.listdir('output')], key=lambda x: x['create_time'], reverse=True)
     }, default=lambda x: x.__dict__), content_type='application/json')
 
 

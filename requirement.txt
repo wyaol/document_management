@@ -2,7 +2,9 @@ asgiref==3.6.0
 Django==4.1.7
 django-cors-headers==3.14.0
 django-sslserver==0.22
+et-xmlfile==1.1.0
 lxml==4.9.2
+openpyxl==3.1.2
 Pillow==9.4.0
 python-docx==0.8.11
 sqlparse==0.4.3
